@@ -121,7 +121,7 @@ async def monitor_token_release(token_id, token_info):
                         for uid in USER_IDS:
                             send_telegram_message(
                                 uid,
-                                f"Token {token.get('name', '?')} released! Contract address: {contract_address}",
+                                f"🚨 TOKEN RELEASED! 🚨\nName: {token.get('name', '?')} ({token.get('symbol', '?')})\nContract Address: \n```\n{contract_address}\n```\nRelease Time: {format_human_datetime(token_info['start_time'])}",
                             )
                         token_info["contract_address_sent"] = True
                         break

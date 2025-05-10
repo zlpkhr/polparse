@@ -14,7 +14,10 @@ MOCK_TOKENS = [
         "_id": 1,
         "name": "TestToken",
         "symbol": "TST",
-        "start_time": (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=30)).isoformat(),
+        "start_time": (
+            datetime.datetime.now(datetime.timezone.utc)
+            + datetime.timedelta(seconds=30)
+        ).isoformat(),
         "contract_address": None,
         "description": "A test token.",
         "image": {},
@@ -48,24 +51,38 @@ MOCK_TOKENS = [
     }
 ]
 
-MOCK_CONTRACT_RELEASE_DELAY = 60  # seconds after start_time to set contract_address
+MOCK_CONTRACT_RELEASE_DELAY = 5  # seconds after start_time to set contract_address
 
 app = Flask(__name__)
 
-@app.route('/tokens')
+
+@app.route("/tokens")
 def tokens():
-    is_upcoming = request.args.get('is_upcoming') == 'true'
+    is_upcoming = request.args.get("is_upcoming") == "true"
     now = datetime.datetime.now(datetime.timezone.utc)
     # Simulate contract address release
     for token in MOCK_TOKENS:
-        start_time = datetime.datetime.fromisoformat(token['start_time'])
-        if token['contract_address'] is None and (now - start_time).total_seconds() > MOCK_CONTRACT_RELEASE_DELAY:
-            token['contract_address'] = '0xMOCKEDCONTRACTADDRESS'
+        start_time = datetime.datetime.fromisoformat(token["start_time"])
+        if (
+            token["contract_address"] is None
+            and (now - start_time).total_seconds() > MOCK_CONTRACT_RELEASE_DELAY
+        ):
+            token["contract_address"] = "0xMOCKEDCONTRACTADDRESS"
     items = [t for t in MOCK_TOKENS if is_upcoming]
-    return jsonify({"items": items, "total": len(items), "page": 1, "page_size": 10, "total_pages": 1})
+    return jsonify(
+        {
+            "items": items,
+            "total": len(items),
+            "page": 1,
+            "page_size": 10,
+            "total_pages": 1,
+        }
+    )
+
 
 def run_mock_server():
     app.run(port=5000, debug=False, use_reloader=False)
+
 
 # Start mock server in background thread
 t = threading.Thread(target=run_mock_server, daemon=True)
@@ -107,7 +124,7 @@ def format_human_datetime(dt):
 # --- Telegram notification function ---
 def send_telegram_message(user_id, text):
     url = f"https://api.telegram.org/bot{TELEGRAM_API_KEY}/sendMessage"
-    data = {"chat_id": user_id, "text": text}
+    data = {"chat_id": user_id, "text": text, "parse_mode": "Markdown"}
     try:
         resp = requests.post(url, data=data)
         resp.raise_for_status()
@@ -190,7 +207,7 @@ async def monitor_token_release(token_id, token_info):
                         for uid in USER_IDS:
                             send_telegram_message(
                                 uid,
-                                f"🚨 TOKEN RELEASED! 🚨\nName: {token.get('name', '?')} ({token.get('symbol', '?')})\nContract Address: {contract_address}\nRelease Time: {format_human_datetime(token_info['start_time'])}",
+                                f"🚨 TOKEN RELEASED! 🚨\nName: TestToken (TST)\nContract Address: \n```\n0xMOCKEDCONTRACTADDRESS\n```\nRelease Time: 2025-05-10 12:00 UTC",
                             )
                         token_info["contract_address_sent"] = True
                         break
