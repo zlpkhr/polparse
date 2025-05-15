@@ -103,7 +103,7 @@ async def monitor_token_release(token_id, token_info):
     while not token_info["contract_address_sent"]:
         try:
             response = requests.get(
-                "https://hot-data.politicalpump.com/tokens?is_upcoming=true&page=1&page_size=50&sort_order=asc&sort_by=start_time",
+                "https://hot-data.politicalpump.com/tokens?page=1&page_size=50&sort_order=asc&sort_by=start_time",
                 headers={"User-Agent": USER_AGENT},
             )
             tokens = response.json().get("items", [])
